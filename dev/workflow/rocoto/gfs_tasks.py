@@ -106,15 +106,19 @@ class GFSTasks(Tasks):
 
         deps = []
 
-        dep_dict = {'type': 'metatask', 'name': 'gdas_atmos_prod', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
-        deps.append(rocoto.add_dependency(dep_dict))
-        data = f'{atm_hist_path}/gdas.t@Hz.atmf009.nc'
-        dep_dict = {'type': 'data', 'data': data, 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
-        deps.append(rocoto.add_dependency(dep_dict))
+        if not self.options['doenkfonly_atm']:
+            dep_dict = {'type': 'metatask', 'name': 'gdas_atmos_prod', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
+            deps.append(rocoto.add_dependency(dep_dict))
+            data = f'{atm_hist_path}/gdas.t@Hz.atmf009.nc'
+            dep_dict = {'type': 'data', 'data': data, 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
+            deps.append(rocoto.add_dependency(dep_dict))
         data = f'{dump_path}/{self.run}.t@Hz.updated.status.tm00.bufr_d'
         dep_dict = {'type': 'data', 'data': data}
         deps.append(rocoto.add_dependency(dep_dict))
-        dep_dict = {'type': 'metatask', 'name': 'gdas_fcst', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
+        if not self.options['doenkfonly_atm']:
+            dep_dict = {'type': 'metatask', 'name': 'gdas_fcst', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
+        else:
+            dep_dict = {'type': 'metatask', 'name': 'enkfgdas_epmn', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
         deps.append(rocoto.add_dependency(dep_dict))
         if self.options['do_prep_sfc']:
             dep_dict = {'type': 'task', 'name': f'{self.run}_prep_sfc'}
@@ -2388,8 +2392,9 @@ class GFSTasks(Tasks):
         dep_next_fcst_seg = rocoto.create_dependency(dep_condition='or', dep=deps)
         deps = []
         if 'enkf' in self.run:
-            dep_dict = {'type': 'task', 'name': f'{self.run}_earc_vrfy'}
-            deps.append(rocoto.add_dependency(dep_dict))
+            if not self.options['doenkfonly_atm']:
+                dep_dict = {'type': 'task', 'name': f'{self.run}_earc_vrfy'}
+                deps.append(rocoto.add_dependency(dep_dict))
             if self.options['do_archcom']:
                 if self.options['do_globusarch']:
                     dep_dict = {'type': 'metatask', 'name': f'{self.run}_globus_earc'}
@@ -2779,8 +2784,9 @@ class GFSTasks(Tasks):
             return grp, dep, lst
 
         deps = []
-        dep_dict = {'type': 'task', 'name': f'{self.run.replace("enkf", "")}_analcalc'}
-        deps.append(rocoto.add_dependency(dep_dict))
+        if not self.options['doenkfonly_atm']:
+            dep_dict = {'type': 'task', 'name': f'{self.run.replace("enkf", "")}_analcalc'}
+            deps.append(rocoto.add_dependency(dep_dict))
         dep_dict = {'type': 'task', 'name': f'{self.run}_eupd'}
         deps.append(rocoto.add_dependency(dep_dict))
         dependencies = rocoto.create_dependency(dep_condition='and', dep=deps)
@@ -2820,8 +2826,9 @@ class GFSTasks(Tasks):
     def ecen_fv3jedi(self):
 
         deps = []
-        dep_dict = {'type': 'task', 'name': f"{self.run.replace('enkf', '')}_atmanlfinal"}
-        deps.append(rocoto.add_dependency(dep_dict))
+        if not self.options['doenkfonly_atm']:
+            dep_dict = {'type': 'task', 'name': f"{self.run.replace('enkf', '')}_atmanlfinal"}
+            deps.append(rocoto.add_dependency(dep_dict))
         dep_dict = {'type': 'task', 'name': f'{self.run}_atmensanlfinal'}
         deps.append(rocoto.add_dependency(dep_dict))
         dependencies = rocoto.create_dependency(dep_condition='and', dep=deps)
@@ -2880,8 +2887,9 @@ class GFSTasks(Tasks):
             dep_dict = {'type': 'task', 'name': f'{self.run}_atmensanlfinal'}
             deps.append(rocoto.add_dependency(dep_dict))
         else:
-            dep_dict = {'type': 'task', 'name': f'{self.run.replace("enkf", "")}_analcalc'}
-            deps.append(rocoto.add_dependency(dep_dict))
+            if not self.options['doenkfonly_atm']:
+                dep_dict = {'type': 'task', 'name': f'{self.run.replace("enkf", "")}_analcalc'}
+                deps.append(rocoto.add_dependency(dep_dict))
             dep_dict = {'type': 'task', 'name': f'{self.run}_eupd'}
             deps.append(rocoto.add_dependency(dep_dict))
         if self.options['do_jedisnowda']:
@@ -2910,8 +2918,11 @@ class GFSTasks(Tasks):
 
         deps = []
         if self.options['do_jediatmens']:
-            dep_dict = {'type': 'task', 'name': f'{self.run}_ecen_fv3jedi'}
-            deps.append(rocoto.add_dependency(dep_dict))
+            if not self.options['doenkfonly_atm']:
+                dep_dict = {'type': 'task', 'name': f'{self.run}_ecen_fv3jedi'}
+                deps.append(rocoto.add_dependency(dep_dict))
+            else:
+                dep_dict = {}
         else:
             dep_dict = {'type': 'metatask', 'name': f'{self.run}_ecmn'}
             deps.append(rocoto.add_dependency(dep_dict))
@@ -3057,9 +3068,10 @@ class GFSTasks(Tasks):
         if 'enkfgdas' in self.run:
             dep_dict = {'type': 'metatask', 'name': f'{self.run}_epmn'}
             deps.append(rocoto.add_dependency(dep_dict))
-            if not self.options['do_jediatmvar']:
-                dep_dict = {'type': 'task', 'name': f'{self.run}_echgres'}
-                deps.append(rocoto.add_dependency(dep_dict))
+            if not self.options['doenkfonly_atm']:
+                if not self.options['do_jediatmvar']:
+                    dep_dict = {'type': 'task', 'name': f'{self.run}_echgres'}
+                    deps.append(rocoto.add_dependency(dep_dict))
         else:
             dep_dict = {'type': 'task', 'name': f'{self.run}_esfc'}
             deps.append(rocoto.add_dependency(dep_dict))
@@ -3092,9 +3104,10 @@ class GFSTasks(Tasks):
         if 'enkfgdas' in self.run:
             dep_dict = {'type': 'metatask', 'name': f'{self.run}_epmn'}
             deps.append(rocoto.add_dependency(dep_dict))
-            if not self.options['do_jediatmvar']:
-                dep_dict = {'type': 'task', 'name': f'{self.run}_echgres'}
-                deps.append(rocoto.add_dependency(dep_dict))
+            if not self.options['doenkfonly_atm']:
+                if not self.options['do_jediatmvar']:
+                    dep_dict = {'type': 'task', 'name': f'{self.run}_echgres'}
+                    deps.append(rocoto.add_dependency(dep_dict))
             dependencies = rocoto.create_dependency(dep_condition='and', dep=deps)
         else:  # early cycle enkf run (enkfgfs)
             dep_dict = {'type': 'task', 'name': f'{self.run}_esfc'}
