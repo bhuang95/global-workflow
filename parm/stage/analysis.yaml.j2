@@ -1,12 +1,19 @@
 {% if path_exists(ICSDIR ~ "/" ~ COMOUT_ATMOS_ANALYSIS_MEM_list[0] | relpath(ROTDIR)) %}
 analysis:
     mkdir:
+        {% if DOENKFONLY_ATM %}
+        {% set COMOUT_ATMOS_ANALYSIS_MEM = COMOUT_ATMOS_ANALYSIS_MEM_list[enssat] %}
+        {% endif %}
+	- "{{ COMOUT_ATMOS_ANALYSIS_MEM }}"
         {% for mem in range(first_mem, last_mem + 1) %}
         {% set imem = mem - first_mem %}
         {% set COMOUT_ATMOS_ANALYSIS_MEM = COMOUT_ATMOS_ANALYSIS_MEM_list[imem] %}
         - "{{ COMOUT_ATMOS_ANALYSIS_MEM }}"
         {% endfor %}
     link_req:
+        {% if DOENKFONLY_ATM %}
+	{% set COMOUT_ATMOS_ANALYSIS_MEM = COMOUT_ATMOS_ANALYSIS_MEM_list[enssat] %}
+	{% endif %}
         {% for mem in range(first_mem, last_mem + 1) %}
         {% set imem = mem - first_mem %}
         {% set COMOUT_ATMOS_ANALYSIS_MEM = COMOUT_ATMOS_ANALYSIS_MEM_list[imem] %}
@@ -18,13 +25,23 @@ analysis:
         {% endif %}
         {% endfor %}
         {% endfor %}
-        {% for ftype in ["abias", "abias_air", "abias_int", "abias_pc", "rad_varbc_params.tar"] %}
+        {% if not DOENKFONLY_ATM %}
+	{% set ftypes = ["abias", "abias_air", "abias_int", "abias_pc", "rad_varbc_params.tar"] %}
+	{% else %}
+	{% set ftypes = ["abias.ensmean", "abias_air.ensmean", "abias_int.ensmean", "abias_pc.ensmean", "rad_varbc_params.tar"] %}
+	{% endif %}
+        {% for ftype in ftypes %}
         {% if path_exists(ICSDIR ~ "/" ~ COMOUT_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) ~ "/" ~ RUN ~ ".t" ~ current_cycle_HH ~ "z." ~ ftype) %}
         - ["{{ ICSDIR }}/{{ COMOUT_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ RUN }}.t{{ current_cycle_HH }}z.{{ ftype }}", "{{ COMOUT_ATMOS_ANALYSIS_MEM }}"]
         {% endif %}
         {% endfor %}
         {% else %}
-        {% for ftype in ["abias", "abias_air", "abias_int", "abias_pc", "atminc.nc", "atmi009.nc", "atmi003.nc", "radstat", "ratminc.nc", "ratmi009.nc", "ratmi003.nc", "rad_varbc_params.tar"] %}
+        {% if not DOENKFONLY_ATM %}
+	{% set ftypes = ["abias", "abias_air", "abias_int", "abias_pc", "atminc.nc", "atmi009.nc", "atmi003.nc", "radstat", "ratminc.nc", "ratmi009.nc", "ratmi003.nc", "rad_varbc_params.tar"] %}
+	{% else %}
+	{% set ftypes = ["abias.ensmean", "abias_air.ensmean", "abias_int.ensmean", "abias_pc.ensmean", "atminc.nc", "atmi009.nc", "atmi003.nc", "radstat", "ratminc.nc", "ratmi009.nc", "ratmi003.nc", "rad_varbc_params.tar"] %}
+	{% endif %}
+        {% for ftype in ftypes %}
         {% if path_exists(ICSDIR ~ "/" ~ COMOUT_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) ~ "/" ~ RUN ~ ".t" ~ current_cycle_HH ~ "z." ~ ftype) %}
         - ["{{ ICSDIR }}/{{ COMOUT_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ RUN }}.t{{ current_cycle_HH }}z.{{ ftype }}", "{{ COMOUT_ATMOS_ANALYSIS_MEM }}"]
         {% endif %}

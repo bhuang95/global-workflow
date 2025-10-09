@@ -34,13 +34,21 @@ enkf_restarta_grp:
         # Member atmospheric analysis data
         {% if DO_JEDIATMENS %}
         {% for itile in range(6) %}
+	{% if not DOENKFONLY_ATM %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}cubed_sphere_grid_ratminc.tile{{ itile+1 }}.nc"
+        {% else %}
+        - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}cubed_sphere_grid_atminc.tile{{ itile+1 }}.nc"
+        {% endif %}
         {% endfor %}
         {% else %}
         {% if do_calc_increment %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}atmanl.nc"
         {% else %}
+	{% if not DOENKFONLY_ATM %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}ratminc.nc"
+        {% else %}
+        - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}atminc.nc"
+        {% endif %}
         {% endif %}
         {% endif %}
 
@@ -50,7 +58,11 @@ enkf_restarta_grp:
         {% if do_calc_increment %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}atma{{ '%03d' % iaufhr }}.nc"
         {% else %}
+	{% if not DOENKFONLY_ATM %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}ratmi{{ '%03d' % iaufhr }}.nc"
+        {% else %}
+        - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}atmi{{ '%03d' % iaufhr }}.nc"
+        {% endif %}
         {% endif %}
         {% endfor %}  # iaufhr in IAUFHRS
 
