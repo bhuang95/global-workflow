@@ -73,6 +73,7 @@ class GFSCycledAppConfig(AppConfig):
 
             run_options[run]['do_hybvar'] = base.get('DOHYBVAR', False)
             run_options[run]['do_hybvar_ocn'] = base.get('DOHYBVAR_OCN', False)
+            run_options[run]['do_enkfonly_atm'] = base.get('DOENKFONLY_ATM', False)
             run_options[run]['do_letkf_ocn'] = base.get('DOLETKF_OCN', False)
             run_options[run]['nens'] = base.get('NMEM_ENS', 0)
             if run_options[run]['do_hybvar']:
@@ -375,8 +376,8 @@ class GFSCycledAppConfig(AppConfig):
 
                 task_names[run] += ['cleanup']
 
-                # Remove unnecessary tasks if doenkfonly_atms=true
-                if options['doenkfonly_atms']:
+                # Remove unnecessary tasks if do_enkfonly_atm=true
+                if options['do_enkfonly_atm']:
                     rmtasks=['anlstat', 'sfcanl', 'analcalc', 'fcst', 'atmanlprod', 'stage_ic', 'arch_tars', 'arch_vrfy', 'atmos_prod', 'atmanlupp', 'cleanup']
                     if options['do_jediatmvar']:
                         rmtasks.extend(['atmanlinit', 'atmanlvar', 'atmanlfv3inc', 'atmanlfinal', 'analcalc_fv3jedi'])
@@ -391,21 +392,21 @@ class GFSCycledAppConfig(AppConfig):
 
                 task_names[run] += ['stage_ic']
                 if options['do_jediatmens']:
-                    if not options['doenkfonly_atms']:
+                    if not options['do_enkfonly_atm']:
                         task_names[run] += ['atmensanlinit', 'atmensanlfv3inc', 'atmensanlfinal', 'ecen_fv3jedi']
-                    else
+                    else:
                         task_names[run] += ['atmensanlinit', 'atmensanlfv3inc', 'atmensanlfinal']
                     if options['lobsdiag_forenkf']:
                         task_names[run] += ['atmensanlobs', 'atmensanlsol']
                     else:
                         task_names[run] += ['atmensanlletkf']
-                    if not options['doenkfonly_atms']:
+                    if not options['do_enkfonly_atm']:
                         task_names[run].append('efcs') if 'gdas' in run else 0
                         task_names[run].append('epos') if 'gdas' in run else 0
 
                 else:
                     task_names[run] += ['eobs', 'eupd', 'ecen']
-                    if not options['doenkfonly_atms']:
+                    if not options['do_enkfonly_atm']:
                         task_names[run].append('echgres') if 'gdas' in run else 0
                     task_names[run] += ['ediag']
 
@@ -420,7 +421,7 @@ class GFSCycledAppConfig(AppConfig):
                 task_names[run].append('epos') if 'gdas' in run else 0
 
                 task_names[run] += ['esfc']
-                if not options['doenkfonly_atms']:
+                if not options['do_enkfonly_atm']:
                     task_names[run] += ['earc_vrfy']
 
                 if options['do_archcom']:
