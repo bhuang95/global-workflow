@@ -126,6 +126,7 @@ if [[ "${DOENKFONLY_ATM:-NO}" == "YES" ]] ; then
     ln -sf $COMIN_ENKF_MEM001_ATMOS_HISTORY_GDAS_PREV/enkfgdas.t${gcyc}z.atm.logf009.txt $COMIN_ATMOS_HISTORY_GDAS_PREV/gdas.t${gcyc}z.atm.logf009.txt
     ln -sf $COMIN_ENKF_ATMOS_HISTORY_GDAS_PREV/enkfgdas.t${gcyc}z.atmf006.ensmean.nc     $COMIN_ATMOS_HISTORY_GDAS_PREV/gdas.t${gcyc}z.atmf006.nc
     ln -sf $COMIN_ENKF_ATMOS_HISTORY_GDAS_PREV/enkfgdas.t${gcyc}z.atmf009.ensmean.nc     $COMIN_ATMOS_HISTORY_GDAS_PREV/gdas.t${gcyc}z.atmf009.nc    
+fi
 
 # Create or Copy prepbufr, prepbufr.acft_profiles, nsstbufr files
 # Do not fail on external errors

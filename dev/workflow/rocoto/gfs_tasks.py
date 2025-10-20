@@ -115,10 +115,10 @@ class GFSTasks(Tasks):
         data = f'{dump_path}/{self.run}.t@Hz.updated.status.tm00.bufr_d'
         dep_dict = {'type': 'data', 'data': data}
         deps.append(rocoto.add_dependency(dep_dict))
-        if not self.options['do_enkfonly_atm']:
-            dep_dict = {'type': 'metatask', 'name': 'gdas_fcst', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
-        else:
+        if self.options['do_enkfonly_atm']:
             dep_dict = {'type': 'metatask', 'name': 'enkfgdas_epmn', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
+        else:
+            dep_dict = {'type': 'metatask', 'name': 'gdas_fcst', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
         deps.append(rocoto.add_dependency(dep_dict))
         if self.options['do_prep_sfc']:
             dep_dict = {'type': 'task', 'name': f'{self.run}_prep_sfc'}

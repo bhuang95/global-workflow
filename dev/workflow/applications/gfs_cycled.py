@@ -392,10 +392,10 @@ class GFSCycledAppConfig(AppConfig):
 
                 task_names[run] += ['stage_ic']
                 if options['do_jediatmens']:
-                    if not options['do_enkfonly_atm']:
-                        task_names[run] += ['atmensanlinit', 'atmensanlfv3inc', 'atmensanlfinal', 'ecen_fv3jedi']
-                    else:
+                    if options['do_enkfonly_atm']:
                         task_names[run] += ['atmensanlinit', 'atmensanlfv3inc', 'atmensanlfinal']
+                    else:
+                        task_names[run] += ['atmensanlinit', 'atmensanlfv3inc', 'atmensanlfinal', 'ecen_fv3jedi']
                     if options['lobsdiag_forenkf']:
                         task_names[run] += ['atmensanlobs', 'atmensanlsol']
                     else:
