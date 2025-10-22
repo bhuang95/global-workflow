@@ -117,7 +117,7 @@ export COMSP=${COMSP:-"${COMIN_OBS}/${RUN_local}.t${cyc}z."}
 
 if [[ "${DOENKFONLY_ATM:-NO}" == "YES" ]] ; then
     RUN="enkfgdas" YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx COMIN_ENKF_ATMOS_HISTORY_GDAS_PREV:COM_ENS_ATMOS_HISTORY_TMPL
-    RUN="enkfgdas" YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx COMIN_ENKF_MEM001_ATMOS_HISTORY_GDAS_PREV:COM_ENS_MEM1_ATMOS_HISTORY_TMPL
+    RUN="enkfgdas" YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx COMIN_ENKF_MEM001_ATMOS_HISTORY_GDAS_PREV:COM_ENS_MEM001_ATMOS_HISTORY_TMPL
     RUN="gdas" YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx COMIN_ATMOS_HISTORY_GDAS_PREV:COM_ATMOS_HISTORY_TMPL
     mkdir -p $COMIN_ATMOS_HISTORY_GDAS_PREV
     ln -sf $COMIN_ENKF_ATMOS_HISTORY_GDAS_PREV/enkfgdas.t${gcyc}z.atmf003.ensmean.nc     $COMIN_ATMOS_HISTORY_GDAS_PREV/gdas.t${gcyc}z.atmf003.nc

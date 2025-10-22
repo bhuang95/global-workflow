@@ -512,6 +512,7 @@ if [[ "${machine}" == "URSA" || "${machine}" == "GAEAC6" || "${machine}" == "ORI
 fi
 
 if [[ "${DOENKFONLY_ATM:-NO}" == "YES" ]] ; then
+    export RECENTER_ENKF="NO"   # Turn off recentering ensemble analysis
     export DO_VERFOZN="NO"      # Ozone data assimilation monitoring
     export DO_VERFRAD="NO"      # Radiance data assimilation monitoring
     export DO_VMINMON="NO"      # GSI minimization monitoring
@@ -520,7 +521,7 @@ if [[ "${DOENKFONLY_ATM:-NO}" == "YES" ]] ; then
     export DO_TRACKER="NO"	# Hurricane track verification
     export DO_GENESIS="NO"      # Cyclone genesis verification
     export DONST="NO"		# Turn off nsst in anal and/or fcst steps
-    export GSIBIAS="/gpfs/f6/ira-da/scratch/Bo.Huang/expCodes/EMCGW/V20250728/global-workflow/comroot/testSatBiasConverter/output/" # Location of operational GSI bias correction
+    export GSIBIAS="/scratch4/BMC/gsienkf/Bo.Huang/expCodes/Workflow/Data/testSatBiasConverter/output"
 fi
 
 # If starting ICs that are not at cycle hour

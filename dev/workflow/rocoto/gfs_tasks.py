@@ -2918,11 +2918,9 @@ class GFSTasks(Tasks):
 
         deps = []
         if self.options['do_jediatmens']:
-            #if not self.options['do_enkfonly_atm']:
-            dep_dict = {'type': 'task', 'name': f'{self.run}_ecen_fv3jedi'}
-            deps.append(rocoto.add_dependency(dep_dict))
-            #else:
-            #    dep_dict = {}
+            if not self.options['do_enkfonly_atm']:
+                dep_dict = {'type': 'task', 'name': f'{self.run}_ecen_fv3jedi'}
+                deps.append(rocoto.add_dependency(dep_dict))
         else:
             dep_dict = {'type': 'metatask', 'name': f'{self.run}_ecmn'}
             deps.append(rocoto.add_dependency(dep_dict))

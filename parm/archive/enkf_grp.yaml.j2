@@ -23,7 +23,7 @@ enkf_grp:
         {% endif %}
         {% if DO_JEDIATMENS %}
         {% for itile in range(6) %}
-	{% if DOENKFONLY_ATM %}
+        {% if DOENKFONLY_ATM %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}cubed_sphere_grid_atminc.tile{{ itile+1 }}.nc"
         {% else %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}cubed_sphere_grid_ratminc.tile{{ itile+1 }}.nc"
@@ -33,7 +33,7 @@ enkf_grp:
         {% if do_calc_increment %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}atmanl.nc"
         {% else %}
-	{% if DOENKFONLY_ATM %}
+        {% if DOENKFONLY_ATM %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}atminc.nc"
         {% else %}
         - "{{ COMIN_ATMOS_ANALYSIS_MEM | relpath(ROTDIR) }}/{{ head }}ratminc.nc"
