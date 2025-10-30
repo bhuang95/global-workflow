@@ -429,7 +429,9 @@ if [[ "${MODE}" = "cycled" && "${SDATE}" = "${PDY}${cyc}" && ${EXP_WARM_START} =
   export DO_LAND_IAU=".false."
 fi
 
-if [[ "${DOIAU_ENKF}" = "NO" ]]; then export IAUFHRS_ENKF="6,"; fi
+if [[ "${DOIAU_ENKF}" = "NO" ]]; then
+    export IAUFHRS_ENKF="6,"
+fi
 
 # Determine restart intervals
 # For IAU, write restarts at beginning of window also
@@ -519,7 +521,6 @@ if [[ "${DOENKFONLY_ATM:-NO}" == "YES" ]] ; then
 fi
 
 # If starting ICs that are not at cycle hour
-export REPLAY_ICS="NO"
 export OFFSET_START_HOUR=0
 
 # Number of regional collectives to create soundings for
