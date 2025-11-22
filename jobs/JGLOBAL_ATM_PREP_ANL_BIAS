@@ -63,7 +63,7 @@ err=$?
         # TODO: Temporary solution and need to process abias_air for JEDI when ready 
 	tar -cvf "${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.air_varbc_params.tar" "./enkf${GDUMP}.t${gcyc}z.abias_air.txt"
 	rm -rf "./enkf${GDUMP}.t${gcyc}z.abias_air.txt"
-        tar -cvf "${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.rad_varbc_params.tar" "./*.txt ./*.nc"
+        tar -cvf "${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.rad_varbc_params.tar" ./*.txt ./*.nc
         err=$?
     fi
 
@@ -78,11 +78,40 @@ else
     done
 fi
 
-
 if [[ ${err} -ne 0 ]]; then
     err_exit "Error executing ${EXSCRIPT}"
 fi
+
+# Run gsi_ncdiag to generate IODA obs for JEDI run
+if [[ ${DOENKFONLY_ATM_GSI_NCDIAG} == "YES" ]]; then
+    cd ${DATA}
+    EXSCRIPT=${RUNGSINCDIAGPY:-${HOMEgfs}/sorc/gdas.cd/build/bin/proc_gsi_ncdiag.py}
+    EXLIBS="${HOMEgfs}/sorc/gdas.cd/sorc/da-utils/ush//gsincdiag_to_ioda:${HOMEgfs}/sorc/gdas.cd/sorc/da-utils/ush/pyiodaconv"
+    export PYTHONPATH="${EXLIBS}:${PYTHONPATH}"
+    INPUT="${DATA}/gsi-ncdiag"
+    OUTPUT="${DATA}/gsi-ncdiag-iodaobs"
+    if [[ ! -d ${OUTPUT} ]]; then
+        mkdir -p ${OUTPUT}
+    fi
+${EXSCRIPT} -o ${OUTPUT} ${INPUT} 
+err=$?
+if [[ ${err} -ne 0 ]]; then
+    err_exit "Error executing ${EXSCRIPT}"
+else
+# Rename obs file to be consistent with JEDI config
+    ORIGPAT="_ges_${PDY}${cyc}.nc4"
+    NEWPAT=".tm00.nc"
+    PREFIX="gdas.t${cyc}z."
+    cd ${OUTPUT}
+    OBSOUT="${ROTDIR}/gdas.${PDY}/${cyc}/obs"
+    NCFILES=$(ls *.nc4)
+    for file in ${NCFILES}; do
+        newfile="${PREFIX}${file/${ORIGPAT}/${NEWPAT}}"
+	cp ${file} ${OBSOUT}/${newfile}
+    done
+fi
 set_trace
+fi
 
 ##############################################
 # End JOB SPECIFIC work

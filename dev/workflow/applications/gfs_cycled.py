@@ -74,6 +74,7 @@ class GFSCycledAppConfig(AppConfig):
             run_options[run]['do_hybvar'] = base.get('DOHYBVAR', False)
             run_options[run]['do_hybvar_ocn'] = base.get('DOHYBVAR_OCN', False)
             run_options[run]['do_enkfonly_atm'] = base.get('DOENKFONLY_ATM', False)
+            run_options[run]['do_enkfonly_atm_gsi_ncdiag'] = base.get('DOENKFONLY_ATM_GSI_NCDIAG', False)
             run_options[run]['do_letkf_ocn'] = base.get('DOLETKF_OCN', False)
             run_options[run]['nens'] = base.get('NMEM_ENS', 0)
             if run_options[run]['do_hybvar']:
@@ -386,7 +387,7 @@ class GFSCycledAppConfig(AppConfig):
                     if run == 'gdas':
                         task_names[run] = []
                         task_names[run] += ['prep', 'fetch', 'prepatmanlbias']
-                        if options['do_jediatmvar']:
+                        if options['do_jediatmvar'] and not options['do_enkfonly_atm_gsi_ncdiag']:
                             task_names[run] += ['prepatmiodaobs']
 
             # Ensemble tasks

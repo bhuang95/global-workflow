@@ -2665,8 +2665,9 @@ class GFSTasks(Tasks):
 
     def atmensanlinit(self):
         deps = []
-        dep_dict = {'type': 'task', 'name': f'{self.run.replace("enkf", "")}_prepatmiodaobs'}
-        deps.append(rocoto.add_dependency(dep_dict))
+        if not self.options['do_enkfonly_atm']:
+            dep_dict = {'type': 'task', 'name': f'{self.run.replace("enkf", "")}_prepatmiodaobs'}
+            deps.append(rocoto.add_dependency(dep_dict))
         dep_dict = {'type': 'metatask', 'name': 'enkfgdas_epmn', 'offset': f"-{timedelta_to_HMS(self._base['interval_gdas'])}"}
         deps.append(rocoto.add_dependency(dep_dict))
         if self.options['do_enkfonly_atm']:
