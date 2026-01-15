@@ -1,0 +1,71 @@
+#! /usr/bin/env bash
+export DATA=${DATA:-${DATAROOT}/${RUN}fetch_${cyc}}
+source "${HOMEgfs}/ush/jjob_header.sh" -e "fetch" -c "base fetch"
+
+if [[ "${DOENKFONLY_ATM}" == "YES" ]] ; then
+    export GDATE=$(date --utc +%Y%m%d%H -d "${PDY} ${cyc} - ${assim_freq} hours")
+    export gPDY=${GDATE:0:8}
+    export gcyc=${GDATE:8:2}
+    export gyy=${GDATE:0:4}
+    export gmm=${GDATE:4:2}
+    export gdd=${GDATE:6:2}
+    # If BC files are pre-processed and available for enkf_only, copy them directly
+    if [[ "${DO_JEDIATMENS}" == "YES" ]]; then
+        if [[ -f "${JEDIENKF_BC}/${gPDY}${gcyc}/gdas.t${gcyc}z.rad_varbc_params.tar" ]] ; then
+	    echo "Use preprocessed BC files and exit now."
+	    exit 0
+	fi
+    else
+        if [[ -f "${GSIENKF_BC}/${gPDY}${gcyc}/enkfgdas.t${gcyc}z.abias.txt" ]] ; then
+	    echo "Use preprocessed BC files and exit now."
+	    exit 0
+        fi
+    fi
+fi
+    
+# Execute fetching
+# Do not export shell opts to the bash scripts in the htar/hsi wrappers
+export -n SHELLOPTS
+"${SCRgfs}/exglobal_fetch.py"
+err=$?
+
+###############################################################
+# Check for errors and exit if any of the above failed
+if [[ ${err} -ne 0 ]]; then
+    err_exit "Unable to fetch ICs to ${ROTDIR}; ABORT!"
+fi
+
+#if [[ "${DOENKFONLY_ATM_GSI_NCDIAG}" == "YES" ]] ; then
+#    export FETCH_YAML_TMPL="${PARMgfs}/fetch/${NET}_${APP}_gdas-anl-gsi-ncdiag.yaml.j2"
+## Execute fetching
+## Do not export shell opts to the bash scripts in the htar/hsi wrappers
+#export -n SHELLOPTS
+#"${SCRgfs}/exglobal_fetch.py"
+#err=$?
+#
+################################################################
+# Check for errors and exit if any of the above failed
+#if [[ ${err} -ne 0 ]]; then
+#    err_exit "Unable to fetch GSI_NCDIAG to ${ROTDIR}; ABORT!"
+#else
+#    cd ${DATA}
+#    mkdir gsi-ncdiag
+#    for file in $(ls ./enkfgdas.20220103/18/atmos/*stat.ensmean); do
+#	tar -xvf "${file}" -C "./gsi-ncdiag"
+#	err=$?
+#	if [[ ${err} -ne 0 ]]; then
+#	    err_exit "Failed to untar ${file}"
+#	fi
+#    done
+#fi
+#fi
+
+##########################################
+# Remove the Temporary working directory
+##########################################
+cd "${DATAROOT}" || exit 1
+if [[ "${KEEPDATA}" == "NO" ]]; then
+    rm -rf "${DATA}"
+fi
+
+exit 0

@@ -35,10 +35,6 @@ class AtmEnsAnalysis(Analysis):
 
         _res = int(self.task_config.CASE_ENS[1:])
 
-        self.task_config.letkf_app = "true"
-        if self.task_config.DOENKFONLY_ATM_GSI_NCDIAG:
-            self.task_config.letkf_app_use_gsi_ncdiag = "true"
-
         # Create a local dictionary that is repeatedly used across this class
         self.task_config.update(AttrDict(
             {
