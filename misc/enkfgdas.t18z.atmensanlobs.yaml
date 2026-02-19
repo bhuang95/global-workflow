@@ -1,0 +1,765 @@
+geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - 8
+  - 8
+  npx: 97
+  npy: 97
+  npz: 127
+time window:
+  begin: '2022-01-19T15:00:00Z'
+  length: PT6H
+  bound to include: begin
+increment variables:
+- eastward_wind
+- northward_wind
+- layer_thickness
+- air_pressure_thickness
+- air_temperature
+- air_pressure_at_surface
+- water_vapor_mixing_ratio_wrt_moist_air
+- cloud_liquid_ice
+- cloud_liquid_water
+- snow_water
+- rain_water
+- graupel
+- ozone_mass_mixing_ratio
+background:
+  datetime: '2022-01-19T18:00:00Z'
+  members from template:
+    template:
+      datetime: '2022-01-19T18:00:00Z'
+      filetype: cube sphere history
+      provider: ufs
+      state variables:
+      - eastward_wind
+      - northward_wind
+      - air_temperature
+      - layer_thickness
+      - air_pressure_thickness
+      - air_pressure_at_surface
+      - water_vapor_mixing_ratio_wrt_moist_air
+      - cloud_liquid_ice
+      - cloud_liquid_water
+      - snow_water
+      - rain_water
+      - graupel
+      - cloud_ice_number_concentration
+      - rain_number_concentration
+      - ozone_mass_mixing_ratio
+      - geopotential_height_at_surface
+      - slmsk
+      - sheleg
+      - skin_temperature_at_surface
+      - vtype
+      - stype
+      - vfrac
+      - soilt
+      - soilm
+      - totalSnowDepthMeters
+      - eastward_wind_at_surface
+      - northward_wind_at_surface
+      - f10m
+      field io names:
+        eastward_wind: ugrd
+        northward_wind: vgrd
+        air_temperature: tmp
+        layer_thickness: delz
+        air_pressure_thickness: dpres
+        air_pressure_at_surface: pressfc
+        water_vapor_mixing_ratio_wrt_moist_air: spfh
+        cloud_liquid_ice: icmr
+        cloud_liquid_water: clwmr
+        snow_water: snmr
+        rain_water: rwmr
+        graupel: grle
+        cloud_ice_number_concentration: nccice
+        rain_number_concentration: nconrd
+        ozone_mass_mixing_ratio: o3mr
+        geopotential_height_at_surface: hgtsfc
+        slmsk: land
+        sheleg: weasd
+        skin_temperature_at_surface: tmpsfc
+        stype: sotyp
+        vfrac: veg
+        totalSnowDepthMeters: snod
+        eastward_wind_at_surface: ugrd_hyblev1
+        northward_wind_at_surface: vgrd_hyblev1
+        soilm: soilw1
+        soilt: soilt1
+      datapath: ./bkg/mem%mem%
+      filename is datetime templated: true
+      filenames:
+      - enkfgdas.t12z.cubed_sphere_grid_atmf006.nc
+      - enkfgdas.t12z.cubed_sphere_grid_sfcf006.nc
+      max allowable geometry difference: 1e-4
+    pattern: '%mem%'
+    nmembers: 80
+    zero padding: 3
+observations:
+  observers:
+  - obs space:
+      name: sondes_ps_tsen
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.sondes_ps_tsen.nc
+          missing file action: warn
+        obsgrouping:
+          group variables:
+          - stationIdentification
+          sort variable: pressure
+          sort order: descending
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_sondes_ps_tsen_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - stationPressure
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: Composite
+      components:
+      - name: SfcCorrected
+        variables:
+        - name: stationPressure
+        correction scheme to use: GSL
+        geovar_sfc_geomz: geopotential_height_at_surface
+        geovar_geomz: geopotential_height
+    linear obs operator:
+      name: Composite
+      components:
+      - name: Identity
+        variables:
+        - name: stationPressure
+    obs filters:
+    - filter: PreQC
+      filter variables:
+      - name: stationPressure
+      maxvalue: 0
+      action:
+        name: reject
+    - filter: Background Check
+      filter variables:
+      - name: stationPressure
+      threshold: 5.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: sondes_tv
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.sondes_tv.nc
+          missing file action: warn
+        obsgrouping:
+          group variables:
+          - stationIdentification
+          sort variable: pressure
+          sort order: descending
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_sondes_tv_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - virtualTemperature
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: virtualTemperature
+    linear obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: virtualTemperature
+    obs filters:
+    - filter: PreQC
+      filter variables:
+      - name: virtualTemperature
+      maxvalue: 0
+      action:
+        name: reject
+    - filter: Background Check
+      filter variables:
+      - name: virtualTemperature
+      threshold: 8.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: sondes_tsen
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.sondes_tsen.nc
+          missing file action: warn
+        obsgrouping:
+          group variables:
+          - stationIdentification
+          sort variable: pressure
+          sort order: descending
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_sondes_tsen_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - airTemperature
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: airTemperature
+    linear obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: airTemperature
+    obs filters:
+    - filter: PreQC
+      filter variables:
+      - name: airTemperature
+      maxvalue: 0
+      action:
+        name: reject
+    - filter: Background Check
+      filter variables:
+      - name: airTemperature
+      threshold: 8.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: sondes_uv
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.sondes_uv.nc
+          missing file action: warn
+        obsgrouping:
+          group variables:
+          - stationIdentification
+          sort variable: pressure
+          sort order: descending
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_sondes_uv_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - windEastward
+      - windNorthward
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: windEastward
+        - name: windNorthward
+    linear obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: windEastward
+        - name: windNorthward
+    obs filters:
+    - filter: PreQC
+      filter variables:
+      - name: windEastward
+      - name: windNorthward
+      maxvalue: 0
+      action:
+        name: reject
+    - filter: Background Check
+      filter variables:
+      - name: windEastward
+      - name: windNorthward
+      threshold: 8.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: sondes_q
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.sondes_q.nc
+          missing file action: warn
+        obsgrouping:
+          group variables:
+          - stationIdentification
+          sort variable: pressure
+          sort order: descending
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_sondes_q_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - specificHumidity
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: specificHumidity
+    linear obs operator:
+      name: Composite
+      components:
+      - name: VertInterp
+        variables:
+        - name: specificHumidity
+    obs filters:
+    - filter: PreQC
+      filter variables:
+      - name: specificHumidity
+      maxvalue: 0
+      action:
+        name: reject
+    - filter: Background Check
+      filter variables:
+      - name: specificHumidity
+      threshold: 8.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: ATMS NPP
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.atms_npp.nc
+          missing file action: warn
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_atms_npp_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - brightnessTemperature
+      channels: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: CRTM
+      Absorbers:
+      - H2O
+      - O3
+      - CO2
+      Clouds:
+      - Water
+      - Ice
+      - Rain
+      - Snow
+      - Graupel
+      method for cloud fraction within fov: thompson
+      method for hydrometeor effective radii within fov: thompson
+      Cloud_Seeding: true
+      obs options:
+        Sensor_ID: atms_npp
+        EndianType: little_endian
+        CoefficientPath: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/crtm/
+      do fov average: false
+      fov sample points per semimajor axis: 4
+      linear obs operator:
+        Absorbers:
+        - H2O
+        - O3
+    obs bias:
+      input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_npp.satbias.nc
+      output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.atms_npp.satbias.nc
+      variables without bc:
+      - brightnessTemperature
+      channels: 15
+      variational bc:
+        predictors:
+        - name: constant
+        - name: lapseRate
+          order: 2
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_npp.tlapse.txt
+        - name: lapseRate
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_npp.tlapse.txt
+        - name: emissivityJacobian
+        - name: sensorScanAngle
+          order: 4
+        - name: sensorScanAngle
+          order: 3
+        - name: sensorScanAngle
+          order: 2
+        - name: sensorScanAngle
+      covariance:
+        minimal required obs number: 20
+        variance range:
+        - 1.0e-06
+        - 10.0
+        step size: 0.0001
+        largest analysis variance: 10000.0
+        prior:
+          input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_npp.satbias_cov.nc
+          inflation:
+            ratio: 1.1
+            ratio for small dataset: 2.0
+        output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.atms_npp.satbias_cov.nc
+    obs filters:
+    - filter: PreQC
+      maxvalue: 0.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: ATMS N20
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.atms_n20.nc
+          missing file action: warn
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_atms_n20_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - brightnessTemperature
+      channels: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: CRTM
+      Absorbers:
+      - H2O
+      - O3
+      - CO2
+      Clouds:
+      - Water
+      - Ice
+      - Rain
+      - Snow
+      - Graupel
+      method for cloud fraction within fov: thompson
+      method for hydrometeor effective radii within fov: thompson
+      Cloud_Seeding: true
+      obs options:
+        Sensor_ID: atms_n20
+        EndianType: little_endian
+        CoefficientPath: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/crtm/
+      do fov average: false
+      fov sample points per semimajor axis: 4
+      linear obs operator:
+        Absorbers:
+        - H2O
+        - O3
+    obs bias:
+      input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_n20.satbias.nc
+      output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.atms_n20.satbias.nc
+      variables without bc:
+      - brightnessTemperature
+      channels: 15
+      variational bc:
+        predictors:
+        - name: constant
+        - name: lapseRate
+          order: 2
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_n20.tlapse.txt
+        - name: lapseRate
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_n20.tlapse.txt
+        - name: emissivityJacobian
+        - name: sensorScanAngle
+          order: 4
+        - name: sensorScanAngle
+          order: 3
+        - name: sensorScanAngle
+          order: 2
+        - name: sensorScanAngle
+      covariance:
+        minimal required obs number: 20
+        variance range:
+        - 1.0e-06
+        - 10.0
+        step size: 0.0001
+        largest analysis variance: 10000.0
+        prior:
+          input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.atms_n20.satbias_cov.nc
+          inflation:
+            ratio: 1.1
+            ratio for small dataset: 2.0
+        output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.atms_n20.satbias_cov.nc
+    obs filters:
+    - filter: PreQC
+      maxvalue: 0.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: IASI METOP-B
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.iasi_metop-b.nc
+          missing file action: warn
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_iasi_metop-b_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - brightnessTemperature
+      channels: 16, 38, 49, 51, 55, 57, 59, 61, 63, 66, 70, 72, 74, 79, 81, 83, 85, 87, 104, 106, 109, 111, 113, 116, 119, 122, 125, 128, 131, 133, 135, 138, 141, 144, 146, 148, 151, 154, 157, 159, 161, 163, 167, 170, 173, 176, 180, 185, 187, 193, 199, 205, 207, 210, 212, 214, 217, 219, 222, 224, 226, 230, 232, 236, 239, 243, 246, 249, 252, 254, 260, 262, 265, 267, 275, 282, 294, 296, 299, 303, 306, 323, 327, 329, 335, 345, 347, 350, 354, 356, 360, 366, 371, 373, 375, 377, 379, 381, 383, 386, 389, 398, 401, 404, 407, 410, 414, 416, 426, 428, 432, 434, 439, 445, 457, 515, 546, 552, 559, 566, 571, 573, 646, 662, 668, 756, 867, 906, 921, 1027, 1046, 1121, 1133, 1191, 1194, 1271, 1479, 1509, 1513, 1521, 1536, 1574, 1579, 1585, 1587, 1626, 1639, 1643, 1652, 1658, 1671, 1786, 1805, 1884, 1991, 2019, 2094, 2119, 2213, 2239, 2271, 2321, 2398, 2701, 2889, 2958, 2993, 3002, 3049, 3105, 3110, 5381, 5399, 5480
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: CRTM
+      Absorbers:
+      - H2O
+      - O3
+      - CO2
+      obs options:
+        Sensor_ID: iasi_metop-b
+        EndianType: little_endian
+        CoefficientPath: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/crtm/
+      linear obs operator:
+        Absorbers:
+        - H2O
+        - O3
+    obs bias:
+      input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-b.satbias.nc
+      output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.iasi_metop-b.satbias.nc
+      variables without bc:
+      - brightnessTemperature
+      channels: 99999
+      variational bc:
+        predictors:
+        - name: constant
+        - name: lapseRate
+          order: 2
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-b.tlapse.txt
+        - name: lapseRate
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-b.tlapse.txt
+        - name: emissivityJacobian
+        - name: sensorScanAngle
+          order: 4
+        - name: sensorScanAngle
+          order: 3
+        - name: sensorScanAngle
+          order: 2
+        - name: sensorScanAngle
+      covariance:
+        minimal required obs number: 20
+        variance range:
+        - 1.0e-06
+        - 10.0
+        step size: 0.0001
+        largest analysis variance: 10000.0
+        prior:
+          input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-b.satbias_cov.nc
+          inflation:
+            ratio: 1.1
+            ratio for small dataset: 2.0
+        output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.iasi_metop-b.satbias_cov.nc
+    obs filters:
+    - filter: PreQC
+      maxvalue: 0.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+  - obs space:
+      name: IASI METOP-C
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs/gdas.t18z.iasi_metop-c.nc
+          missing file action: warn
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/diags/diag_lobs_iasi_metop-c_2022011918.nc
+      io pool:
+        max pool size: 24
+      simulated variables:
+      - brightnessTemperature
+      channels: 16, 38, 49, 51, 55, 57, 59, 61, 63, 66, 70, 72, 74, 79, 81, 83, 85, 87, 104, 106, 109, 111, 113, 116, 119, 122, 125, 128, 131, 133, 135, 138, 141, 144, 146, 148, 151, 154, 157, 159, 161, 163, 167, 170, 173, 176, 180, 185, 187, 193, 199, 205, 207, 210, 212, 214, 217, 219, 222, 224, 226, 230, 232, 236, 239, 243, 246, 249, 252, 254, 260, 262, 265, 267, 275, 282, 294, 296, 299, 303, 306, 323, 327, 329, 335, 345, 347, 350, 354, 356, 360, 366, 371, 373, 375, 377, 379, 381, 383, 386, 389, 398, 401, 404, 407, 410, 414, 416, 426, 428, 432, 434, 439, 445, 457, 515, 546, 552, 559, 566, 571, 573, 646, 662, 668, 756, 867, 906, 921, 1027, 1046, 1121, 1133, 1191, 1194, 1271, 1479, 1509, 1513, 1521, 1536, 1574, 1579, 1585, 1587, 1626, 1639, 1643, 1652, 1658, 1671, 1786, 1805, 1884, 1991, 2019, 2094, 2119, 2213, 2239, 2271, 2321, 2398, 2701, 2889, 2958, 2993, 3002, 3049, 3105, 3110, 5381, 5399, 5480
+      distribution:
+        name: RoundRobin
+        halo size: 1250e3
+    obs operator:
+      name: CRTM
+      Absorbers:
+      - H2O
+      - O3
+      - CO2
+      obs options:
+        Sensor_ID: iasi_metop-c
+        EndianType: little_endian
+        CoefficientPath: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/crtm/
+      linear obs operator:
+        Absorbers:
+        - H2O
+        - O3
+    obs bias:
+      input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-c.satbias.nc
+      output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.iasi_metop-c.satbias.nc
+      variables without bc:
+      - brightnessTemperature
+      channels: 99999
+      variational bc:
+        predictors:
+        - name: constant
+        - name: lapseRate
+          order: 2
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-c.tlapse.txt
+        - name: lapseRate
+          tlapse: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-c.tlapse.txt
+        - name: emissivityJacobian
+        - name: sensorScanAngle
+          order: 4
+        - name: sensorScanAngle
+          order: 3
+        - name: sensorScanAngle
+          order: 2
+        - name: sensorScanAngle
+      covariance:
+        minimal required obs number: 20
+        variance range:
+        - 1.0e-06
+        - 10.0
+        step size: 0.0001
+        largest analysis variance: 10000.0
+        prior:
+          input file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/obs//gdas.t12z.iasi_metop-c.satbias_cov.nc
+          inflation:
+            ratio: 1.1
+            ratio for small dataset: 2.0
+        output file: /scratch4/BMC/arfs-psl/Bo.Huang/expCodes/Workflow/EnKFOnly-20251031/TestGWSetupRealCase/tmp/RUNDIRS/TestGW-EnKFOnlyGSINCDiag-JEDI-MEM80-T9/enkfgdas.2022011918/enkfgdasatmensanl_18/bc//gdas.t18z.iasi_metop-c.satbias_cov.nc
+    obs filters:
+    - filter: PreQC
+      maxvalue: 0.0
+      action:
+        name: reject
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 1250e3
+      max nobs: 10000
+local ensemble DA:
+  solver: Deterministic GETKF
+  use linear observer: true
+  vertical localization:
+    fraction of retained variance: 0.975
+    lengthscale: 2.1
+    lengthscale units: logp
+    write eigen vectors: false
+    read eigen vectors: false
+  inflation:
+    rtps: 0.85
+    rtpp: 0.0
+    mult: 1.0
+driver:
+  update obs config with geometry info: true
+  do test prints: true
+  read HX from disk: false
+  run as observer only: true
+  save posterior mean: true
+  save posterior ensemble: false
+  save prior mean: false
+  save posterior mean increment: true
+  save posterior ensemble increments: true
+  save prior variance: false
+  save posterior variance: false
+  do posterior observer: false
+  use control member: false
+output:
+  filetype: cube sphere history
+  provider: ufs
+  ufs soil nlev: 4
+  ufs fields split by level:
+  - smc
+  - stc
+  filename: ./anl/enkfgdas.t18z.cubed_sphere_grid_atmanl.ensmean.nc
+output increment:
+  filetype: auxgrid
+  gridtype: gaussian
+  filename: ./anl/gaussian_grid_atminc.ensmean.
+  field io names:
+    eastward_wind: ugrd
+    northward_wind: vgrd
+    air_temperature: tmp
+    air_pressure_at_surface: pressfc
+    water_vapor_mixing_ratio_wrt_moist_air: spfh
+    cloud_liquid_ice: icmr
+    cloud_liquid_water: clwmr
+    ozone_mass_mixing_ratio: o3mr
+output ensemble increments:
+  filetype: cube sphere history
+  provider: ufs
+  filename: ./anl/mem%{member}%/cubed_sphere_grid_atminc.jedi.nc
+  field io names:
+    eastward_wind: ugrd
+    northward_wind: vgrd
+    air_temperature: tmp
+    air_pressure_at_surface: pressfc
+    water_vapor_mixing_ratio_wrt_moist_air: spfh
+    cloud_liquid_ice: icmr
+    cloud_liquid_water: clwmr
+    snow_water: snmr
+    rain_water: rwmr
+    graupel: grle
+    ozone_mass_mixing_ratio: o3mr

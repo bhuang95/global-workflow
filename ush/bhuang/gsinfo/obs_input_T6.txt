@@ -1,0 +1,10 @@
+!  dfile          dtype       dplat       dsis                dval    dthin dsfcalc
+   prepbufr       ps          null        ps                  0.0     0     0
+   prepbufr       t           null        t                   0.0     0     0
+   prepbufr_profl t           null        t                   0.0     0     0
+   prepbufr       q           null        q                   0.0     0     0
+   prepbufr_profl q           null        q                   0.0     0     0
+   prepbufr       uv          null        uv                  0.0     0     0
+   prepbufr_profl uv          null        uv                  0.0     0     0
+   atmsbufr       atms        npp         atms_npp            0.0     1     1
+   atmsbufr       atms        n20         atms_n20            0.0     1     1
